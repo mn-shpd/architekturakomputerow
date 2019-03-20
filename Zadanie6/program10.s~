@@ -1,0 +1,41 @@
+	.intel_syntax noprefix
+	.global main
+	.text
+
+main:
+	mov eax, [esp+8] #Przesuniecie wskaznika stosu o 8 bajtow i przeniesieni
+	mov eax, [eax+4] #adresu 1. argumentu programu do EAX. Wyluskanie
+	push eax	#wartosci kryjacej sie pod adresem drugiego argumentu.
+	call atoi
+	add esp, 4  #Przesuniecie wskaznika stosu o 4 bajty.
+	
+	push eax    #Wrzucenie wartosci wczytanej przy uruch. na stos.
+	call f	    #Wywolanie funkcji f z argumentem wczytanym przy uruch.
+	add esp, 4  #Przesuniecie wskazniku stosu o 4 bajty.
+
+	push eax 	    #Wrzucenie wyniku funkcji f na stos.
+	mov eax, offset msg #Zapisanie adresu et. msg w rejestrze EAX.
+	push eax 	    #Wrzucenie adresu et. na stos.
+	call printf 	    #Wywolanie funkcji printf.
+	add esp, 8  	    #Przesuniecie wskaznika stosu o 8 bajtow.
+	xor eax, eax 	#Wyzerowanie rejestru EAX, celem wyzerowania kodu
+	ret	    	#zwracanego przez program.
+
+f:	cmp edx, 0   #Sprawdzam czy jest wartosc w rej. EDX.
+	jg skok1     #Jest = kolejne wywolanie funkcji (pomija przypisanie wart)
+	mov ebx, 0   #Przypisanie do rejestrow EBX i ECX wartosci 0 i 1
+	mov ecx, 1   #Sa to poczatkowe wartosci ciagu Fibonacciego
+skok1:	cmp eax, 0   #Porownanie wartosci podanej jako argument funkcji do 0.
+	je skok2    #Jesli rowne 0 to przechodzi do et. skok2. Wpw. idzie dalej.
+	mov edx, ecx #Przenosi wart. z ECX do EDX celem tymczasowego przechowa.
+	add ecx, ebx #Dodanie do ECX rej. EBX (dodanie poprzedniego el. ciagu)
+	mov ebx, edx #Przeniesienie wartosci wystepujacej pod ECX przed +
+	             #do rejestru EBX
+	dec eax	    #Zmniejszenie EAX o 1, bedacego licznikiem petli.
+	call f   #Kolejne wywolanie funkcji.
+
+skok2:	mov eax, ebx  #Przeniesienie do rejestru EAX wyniku funkcji.
+	ret	      #Zakonczenie funkcji i zwrot wyniku.
+
+	.data
+msg:	.asciz "Wynik = %d\n"

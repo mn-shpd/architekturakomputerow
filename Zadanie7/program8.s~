@@ -1,0 +1,17 @@
+	.intel_syntax noprefix
+	.text
+	.global main
+
+main:
+	mov eax, [esp+8]
+	mov eax, [eax+4]
+	mov eax, [eax]
+	push eax
+	mov eax, offset format2
+	push eax
+	call printf
+	add esp, 8
+	ret
+	
+	.data
+format2:	.asciz "Wynik: %c\n"

@@ -1,0 +1,3 @@
+Program, ktory odwraca stringa.
+
+Np. z Wojtek robi ketjoW i zapisuje w tej samej tablicy/wskazniku.

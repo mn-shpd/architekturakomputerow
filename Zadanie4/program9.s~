@@ -1,0 +1,19 @@
+	.intel_syntax noprefix
+	.global main
+	.text
+	
+main:	push x
+	mov eax, offset format
+	push eax
+	call scanf
+	add esp, 8
+	mov eax, offset result
+	push x
+	push eax
+	call printf
+	add esp, 8
+	
+	.data
+x:	.int 0
+format:	.asciz "%d"
+result:	.asciz "Wynik = %d\n"

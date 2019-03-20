@@ -1,0 +1,8 @@
+Program, ktory liczy ilosc wystapien ciagu 101 w zapisie binarnym liczby
+a) wariant bez nachodzenia na siebie ciagow 
+b) wariant z nachodzeniem 
+
+10101010101
+
+a) 3
+b) 5

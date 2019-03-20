@@ -1,0 +1,79 @@
+	.intel_syntax noprefix
+	.text 
+	.global main
+	
+main:
+	mov eax, offset x
+	push eax
+	mov eax, offset format
+	push eax
+	call scanf
+	add esp, 8
+	mov ebx, offset y
+	mov ecx, offset x
+	mov eax, [ecx]
+start:
+	cmp eax, 0
+	je koniec
+	cmp eax, 98 	#b
+	je skok1
+	cmp eax, 116	#t
+	je skok1
+	inc ecx
+	mov  eax, [ecx]
+	jmp start
+
+skok0:
+	mov [ebx], eax
+	inc ecx
+	mov eax, [ecx]
+	cmp eax, 99
+	jne skocz
+	inc ebx
+	mov [ebx], eax
+	jmp koniec
+skok1:
+	mov [ebx], eax
+	inc ecx
+	mov eax, [ecx]
+skocz:
+	cmp eax, 0
+	je koniec2
+	cmp eax, 97	#!a
+	je skok2
+	cmp eax, 98	#!b
+	je start
+	cmp eax, 99	#!c
+	je skok2
+	inc ebx
+	jmp skok0
+
+skok2:
+	inc ecx
+	mov eax, ecx
+	jmp start
+	
+koniec:
+	mov eax, offset y
+	push eax
+	mov eax, offset format2
+	push eax
+	call printf
+	add esp, 8
+	ret
+	
+koniec2:
+	mov eax, offset komunikat
+	push eax
+	call printf
+	add esp, 4
+	ret
+	
+	.data
+format:	.string "%s"
+format2:	 .asciz "Wynik: %s\n"
+komunikat:	.asciz "Nie znaleziono szukanego wyrazenia.\n"
+
+	.bss
+x:	.space 100
+y:	.space 100

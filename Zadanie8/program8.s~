@@ -1,0 +1,69 @@
+#Liczy sinus (liczby zmiennoprzecinkowe)
+
+	.intel_syntax noprefix
+	.text
+	.global main
+
+main:
+	finit   #przygotowuje rejestr liczb zmiennoprzecinkowych
+	mov eax, [esp+8]
+	mov eax, [eax+4]
+	push eax
+	call atof
+	add esp, 4
+
+	fst qword ptr x  #Zapisuje w zmiennej x podany argument.
+	fst qword ptr y  #Zapisuje w zmiennej y podany argument.
+	fstp qword ptr a  #Sciaga ze stosu wartosc ze zmiennej y (argument) i zapisuje w zmiennej a.
+	
+petla:	fld qword ptr dwa #Wrzuca na stos liczbe 2.
+	fld qword ptr n   #Wrzuca na stos wartosc n (na poczatku 0).
+	faddp		   #Dodaje do siebie 2 i n i sciaga ze stosu ostatnio wrzucony element, czyli n.
+	                   #Na stosie pozostaje wynik dzialania dodawania (st0) ???
+	fld1               #Wrzuca na stos liczbe 1.
+	fld qword ptr n  #Wrzuca na stos wartosc n.
+	faddp              #Dodaje do siebie 1 i n i sciaga ze stosu ostatnio wrzucony element, czyli n.
+	                   #Na stosie teraz w st1 jest wynik pierwszego dodawania
+	                   #a w st0 wynik drugiego dodawania
+	fmulp              #Mnozy (n+2)*(n+1), sciaga ze stosu (n+1) tak ze na stosie zostaje wynik *.
+	fld qword ptr a    #Wrzuca  na stos wartosc a.
+	fld qword ptr x	   #Wrzuca na stos wartosc x.
+	fld qword ptr x	   #Wrzuca na stos wartosc x.
+	fmulp              #Wykonuje mnozenie (x*x) i zdejmuje x ze stosu. (na stosie kolejno: (n+2)*(n+1), a, (x*x)
+	fmulp		   #Wykonuje mnozenie a*(x*x) i zdejmuje (x*x) ze stosu. (na stosie kolejno: (n+2)*(n+1), a*(x*x)
+	fdivrp	           #Wykonuje dzielenie odwrotne tzn. st0/st1 = a*(x*x) / (n+2)*(n+1) i zdejmuje ze stosu st0.
+			   #Na stosie zostaje wynik.
+	fchs               #Dokonuje zmiany znaku st0, czyli zamienia znak wyniku dzielenia.
+	fst qword ptr a    #Zapisuje w zmiennej a wynik dzielenia o zmienionym znaku.
+	fld qword ptr y    #Wrzuca na stos wartosc ze zmiennej y.
+	faddp              #Dodaje do (-1)* a*(x*x)/(n+2)*(n+1) wartosc y i sciaga ze stosu wartosc y.
+	fstp qword ptr y   #Zapisuje w zmiennej y wynik dodawania a+y i sciaga ten wynik ze stosu.
+	fld qword ptr n    #Wrzuca na stos wartosc ze zmiennej n.
+	fld qword ptr dwa #Wrzuca na stos liczbe 2.
+	faddp               #Wykonuje dzialanie n+2
+	fstp qword ptr n   #Sciaga ze stosu wynik dzialania i przypisuje do zmiennej n.
+	fld qword ptr a    #Wrzuca na stos wartosc ze zmiennej a.
+	fabs		  #Zastepuje st0 jego wartoscia bezwzgledna, czyli |a|.
+	fld qword ptr eps #Wrzuca na stos wartosc ze zmiennej eps.
+	fcompp           #Porownuje st0 z st1 i sciaga ze stosu obydwie wartosci
+	fstsw ax         #Kopiuje rejestr flag z koprocesora do procesora
+	sahf		 #sahf
+	jb petla
+
+koniec:	fld qword ptr y
+	sub esp, 8 #dlaczego trzeba zarezerowac 8 bajtow, skoro l. zm. ma 80bit.(10 bajtow)
+	fstp qword ptr [esp]  #Rezerwuje to miejsce, bo nie da sie wrzucic takiej ilosc bitow w 32bit arch.
+	mov eax, offset wynik
+	push eax
+	call printf
+	add esp, 12
+	ret
+	
+	.data
+x:	.double 1.0
+wynik:	.asciz "%f\n"
+y:	.double 1.0
+a:	.double 1.0
+n:	.double 1.0
+dwa:	.double 2.0
+eps:	.double 0.00001
